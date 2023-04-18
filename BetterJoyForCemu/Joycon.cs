@@ -195,7 +195,7 @@ namespace BetterJoyForCemu {
                     queued_data = queue.Dequeue();
                     valid = (queued_data[2] != 0.0f);
 
-                    if ( valid)
+                    if (valid)
                     {
                         queued_data[0] = clamp(queued_data[0], 40.875885f, 626.286133f);
                         queued_data[1] = clamp(queued_data[1], 81.75177f, 1252.572266f);
@@ -356,6 +356,7 @@ namespace BetterJoyForCemu {
         }
 
         public void DebugPrint(String s, DebugType d) {
+            if (debug_type == DebugType.NONE) return;
             if (d == DebugType.ALL || d == debug_type || debug_type == DebugType.ALL) {
                 form.AppendTextBox(s + "\r\n");
             }
@@ -907,6 +908,9 @@ namespace BetterJoyForCemu {
 
         bool swapAB = Boolean.Parse(ConfigurationManager.AppSettings["SwapAB"]);
         bool swapXY = Boolean.Parse(ConfigurationManager.AppSettings["SwapXY"]);
+        float stickScalingFactor = float.Parse(ConfigurationManager.AppSettings["StickScalingFactor"]);
+        float stickScalingFactor2 = float.Parse(ConfigurationManager.AppSettings["StickScalingFactor2"]);
+
         private int ProcessButtonsAndStick(byte[] report_buf) {
             if (report_buf[0] == 0x00) throw new ArgumentException("received undefined report. This is probably a bug");
             if (isN64) {
@@ -915,7 +919,7 @@ namespace BetterJoyForCemu {
                 stickN64_raw[2] = report_buf[8];
                 stickN64_precal[0] = (UInt16)(stickN64_raw[0] | ((stickN64_raw[1] & 0xf) << 8));
                 stickN64_precal[1] = (UInt16)((stickN64_raw[1] >> 4) | (stickN64_raw[2] << 4));
-                stick = CenterSticks(stickN64_precal, stickN64_cal, deadzoneN64);
+                stick = CenterSticks(stickN64_precal, stickN64_cal, deadzoneN64, isLeft ? stickScalingFactor : stickScalingFactor2);
 
                 if (stick[0] <= -1.0f && stick[1] <= -1.0f) {
                     stickN64_raw[0] = report_buf[6 + 3];
@@ -923,7 +927,7 @@ namespace BetterJoyForCemu {
                     stickN64_raw[2] = report_buf[8 + 3];
                     stickN64_precal[0] = (UInt16)(stickN64_raw[0] | ((stickN64_raw[1] & 0xf) << 8));
                     stickN64_precal[1] = (UInt16)((stickN64_raw[1] >> 4) | (stickN64_raw[2] << 4));
-                    stick = CenterSticks(stickN64_precal, stickN64_cal, deadzoneN64);
+                    stick = CenterSticks(stickN64_precal, stickN64_cal, deadzoneN64, isLeft ? stickScalingFactor : stickScalingFactor2);
                 }
             } else if (!isSnes) {
                 stick_raw[0] = report_buf[6 + (isLeft ? 0 : 3)];
@@ -938,12 +942,12 @@ namespace BetterJoyForCemu {
 
                 stick_precal[0] = (UInt16)(stick_raw[0] | ((stick_raw[1] & 0xf) << 8));
                 stick_precal[1] = (UInt16)((stick_raw[1] >> 4) | (stick_raw[2] << 4));
-                stick = CenterSticks(stick_precal, stick_cal, deadzone);
+                stick = CenterSticks(stick_precal, stick_cal, deadzone, isLeft ? stickScalingFactor : stickScalingFactor2);
 
                 if (isPro) {
                     stick2_precal[0] = (UInt16)(stick2_raw[0] | ((stick2_raw[1] & 0xf) << 8));
                     stick2_precal[1] = (UInt16)((stick2_raw[1] >> 4) | (stick2_raw[2] << 4));
-                    stick2 = CenterSticks(stick2_precal, stick2_cal, deadzone2);
+                    stick2 = CenterSticks(stick2_precal, stick2_cal, deadzone2, stickScalingFactor2);
                 }
 
                 // Read other Joycon's sticks
@@ -1140,7 +1144,7 @@ namespace BetterJoyForCemu {
         }
 
         // Should really be called calculating stick data
-        private float[] CenterSticks(UInt16[] vals, ushort[] cal, ushort dz) {
+        private float[] CenterSticks(UInt16[] vals, ushort[] cal, ushort dz, float scaling_factor) {
             ushort[] t = cal;
 
             float[] s = { 0, 0 };
@@ -1150,6 +1154,15 @@ namespace BetterJoyForCemu {
 
             s[0] = dx / (dx > 0 ? t[0] : t[4]);
             s[1] = dy / (dy > 0 ? t[1] : t[5]);
+
+            if (scaling_factor != 1.0f) {
+                s[0] *= scaling_factor;
+                s[1] *= scaling_factor;
+
+                s[0] = Math.Max(Math.Min(s[0], 1.0f), -1.0f);
+                s[1] = Math.Max(Math.Min(s[1], 1.0f), -1.0f);
+            }
+
             return s;
         }
 
@@ -1385,8 +1398,14 @@ namespace BetterJoyForCemu {
                 output.shoulder_left = buttons[(int)Button.SHOULDER_1];
                 output.shoulder_right = buttons[(int)Button.SHOULDER2_1];
 
-                output.thumb_stick_left = buttons[(int)Button.STICK];
-                output.thumb_stick_right = buttons[(int)Button.STICK2];
+
+                if (isN64) {
+                    output.thumb_stick_left = buttons[(int)(isLeft ? Button.SHOULDER_2 : Button.SHOULDER2_2)];
+                    output.thumb_stick_right = buttons[(int)(isLeft ? Button.SHOULDER2_2 : Button.SHOULDER_2)];
+                } else {
+                    output.thumb_stick_left = buttons[(int)Button.STICK];
+                    output.thumb_stick_right = buttons[(int)Button.STICK2];
+                }
             } else {
                 if (other != null) { // no need for && other != this
                     output.a = buttons[(int)(!swapAB ? isLeft ? Button.B : Button.DPAD_DOWN : isLeft ? Button.A : Button.DPAD_RIGHT)];
@@ -1429,7 +1448,7 @@ namespace BetterJoyForCemu {
                 output.guide = false;
 
             if (!isSnes) {
-                if ( isN64 ) {
+                if (isN64) {
                     output.axis_left_x = CastStickValue(stick[0]);
                     output.axis_left_y = CastStickValue(stick[1]);
                 } else if (other != null || isPro) { // no need for && other != this
@@ -1444,14 +1463,19 @@ namespace BetterJoyForCemu {
                 }
             }
 
-            if (other != null || isPro) {
-                byte lval = GyroAnalogSliders ? sliderVal[0] : Byte.MaxValue;
-                byte rval = GyroAnalogSliders ? sliderVal[1] : Byte.MaxValue;
-                output.trigger_left = (byte)(buttons[(int)(isLeft ? Button.SHOULDER_2 : Button.SHOULDER2_2)] ? lval : 0);
-                output.trigger_right = (byte)(buttons[(int)(isLeft ? Button.SHOULDER2_2 : Button.SHOULDER_2)] ? rval : 0);
+            if (isN64) {
+                output.trigger_left = 0;
+                output.trigger_right = 0;
             } else {
-                output.trigger_left = (byte)(buttons[(int)(isLeft ? Button.SHOULDER_2 : Button.SHOULDER_1)] ? Byte.MaxValue : 0);
-                output.trigger_right = (byte)(buttons[(int)(isLeft ? Button.SHOULDER_1 : Button.SHOULDER_2)] ? Byte.MaxValue : 0);
+                if (other != null || isPro) {
+                    byte lval = GyroAnalogSliders ? sliderVal[0] : Byte.MaxValue;
+                    byte rval = GyroAnalogSliders ? sliderVal[1] : Byte.MaxValue;
+                    output.trigger_left = (byte)(buttons[(int)(isLeft ? Button.SHOULDER_2 : Button.SHOULDER2_2)] ? lval : 0);
+                    output.trigger_right = (byte)(buttons[(int)(isLeft ? Button.SHOULDER2_2 : Button.SHOULDER_2)] ? rval : 0);
+                } else {
+                    output.trigger_left = (byte)(buttons[(int)(isLeft ? Button.SHOULDER_2 : Button.SHOULDER_1)] ? Byte.MaxValue : 0);
+                    output.trigger_right = (byte)(buttons[(int)(isLeft ? Button.SHOULDER_1 : Button.SHOULDER_2)] ? Byte.MaxValue : 0);
+                }
             }
 
             return output;
@@ -1501,14 +1525,19 @@ namespace BetterJoyForCemu {
                 else if (buttons[(int)Button.DPAD_RIGHT])
                     output.dPad = DpadDirection.East;
 
-                output.share = buttons[(int)Button.MINUS];
+                output.share = buttons[(int)Button.CAPTURE];
                 output.options = buttons[(int)Button.PLUS];
                 output.ps = buttons[(int)Button.HOME];
-                output.touchpad = buttons[(int)Button.CAPTURE];
+                output.touchpad = buttons[(int)Button.MINUS];
                 output.shoulder_left = buttons[(int)Button.SHOULDER_1];
                 output.shoulder_right = buttons[(int)Button.SHOULDER2_1];
-                output.thumb_left = buttons[(int)Button.STICK];
-                output.thumb_right = buttons[(int)Button.STICK2];
+                if (isN64) {
+                    output.thumb_left = buttons[(int)(isLeft ? Button.SHOULDER_2 : Button.SHOULDER2_2)];
+                    output.thumb_right = buttons[(int)(isLeft ? Button.SHOULDER2_2 : Button.SHOULDER_2)];
+                } else {
+                    output.thumb_left = buttons[(int)Button.STICK];
+                    output.thumb_right = buttons[(int)Button.STICK2];
+                }
             } else {
                 if (other != null) { // no need for && other != this
                     output.cross = !swapAB ? buttons[(int)(isLeft ? Button.B : Button.DPAD_DOWN)] : buttons[(int)(isLeft ? Button.A : Button.DPAD_RIGHT)];
@@ -1535,10 +1564,10 @@ namespace BetterJoyForCemu {
                     else if (buttons[(int)(isLeft ? Button.DPAD_RIGHT : Button.A)])
                         output.dPad = DpadDirection.East;
 
-                    output.share = buttons[(int)Button.MINUS];
+                    output.share = buttons[(int)Button.CAPTURE];
                     output.options = buttons[(int)Button.PLUS];
                     output.ps = buttons[(int)Button.HOME];
-                    output.touchpad = buttons[(int)Button.CAPTURE];
+                    output.touchpad = buttons[(int)Button.MINUS];
                     output.shoulder_left = buttons[(int)(isLeft ? Button.SHOULDER_1 : Button.SHOULDER2_1)];
                     output.shoulder_right = buttons[(int)(isLeft ? Button.SHOULDER2_1 : Button.SHOULDER_1)];
                     output.thumb_left = buttons[(int)(isLeft ? Button.STICK : Button.STICK2)];
@@ -1578,15 +1607,23 @@ namespace BetterJoyForCemu {
                 }
             }
 
-            if (other != null || isPro) {
-                byte lval = GyroAnalogSliders ? sliderVal[0] : Byte.MaxValue;
-                byte rval = GyroAnalogSliders ? sliderVal[1] : Byte.MaxValue;
-                output.trigger_left_value = (byte)(buttons[(int)(isLeft ? Button.SHOULDER_2 : Button.SHOULDER2_2)] ? lval : 0);
-                output.trigger_right_value = (byte)(buttons[(int)(isLeft ? Button.SHOULDER2_2 : Button.SHOULDER_2)] ? rval : 0);
+            if (isN64) {
+                output.trigger_left_value = 0;
+                output.trigger_right_value = 0;
             } else {
-                output.trigger_left_value = (byte)(buttons[(int)(isLeft ? Button.SHOULDER_2 : Button.SHOULDER_1)] ? Byte.MaxValue : 0);
-                output.trigger_right_value = (byte)(buttons[(int)(isLeft ? Button.SHOULDER_1 : Button.SHOULDER_2)] ? Byte.MaxValue : 0);
+                if (other != null || isPro) {
+                    byte lval = GyroAnalogSliders ? sliderVal[0] : Byte.MaxValue;
+                    byte rval = GyroAnalogSliders ? sliderVal[1] : Byte.MaxValue;
+                    output.trigger_left_value = (byte)(buttons[(int)(isLeft ? Button.SHOULDER_2 : Button.SHOULDER2_2)] ? lval : 0);
+                    output.trigger_right_value = (byte)(buttons[(int)(isLeft ? Button.SHOULDER2_2 : Button.SHOULDER_2)] ? rval : 0);
+                } else {
+                    output.trigger_left_value = (byte)(buttons[(int)(isLeft ? Button.SHOULDER_2 : Button.SHOULDER_1)] ? Byte.MaxValue : 0);
+                    output.trigger_right_value = (byte)(buttons[(int)(isLeft ? Button.SHOULDER_1 : Button.SHOULDER_2)] ? Byte.MaxValue : 0);
+                }
             }
+            // Output digital L2 / R2 in addition to analog L2 / R2
+            output.trigger_left = (output.trigger_left_value > 0);
+            output.trigger_right = (output.trigger_right_value > 0);
 
             return output;
         }

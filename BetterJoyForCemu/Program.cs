@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -518,6 +519,9 @@ namespace BetterJoyForCemu {
         private static string appGuid = "1bf709e9-c133-41df-933a-c9ff3f664c7b"; // randomly-generated
         static void Main(string[] args) {
 
+            // Setting the culturesettings so float gets parsed correctly
+            CultureInfo.CurrentCulture = new CultureInfo("en-US", false);
+
             // Set the correct DLL for the current OS
             SetupDlls();
 
@@ -535,12 +539,10 @@ namespace BetterJoyForCemu {
         }
 
         static void SetupDlls() {
-            const int LOAD_LIBRARY_SEARCH_DEFAULT_DIRS = 0x00001000;
-            SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_DEFAULT_DIRS);
-            AddDllDirectory(Path.Combine(
-                AppDomain.CurrentDomain.BaseDirectory,
-                Environment.Is64BitProcess ? "x64" : "x86"
-            ));
+            string archPath = $"{AppDomain.CurrentDomain.BaseDirectory}{(Environment.Is64BitProcess ? "x64" : "x86")}\\";
+            string pathVariable = Environment.GetEnvironmentVariable("PATH");
+            pathVariable = $"{archPath};{pathVariable}";
+            Environment.SetEnvironmentVariable("PATH", pathVariable);
         }
 
         // Helper funtions to set the hidapi dll location acording to the system instruction set.
