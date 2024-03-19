@@ -3,25 +3,28 @@
 </p>
 
 # BetterJoy v7.1.n64
-Edited for the specific use of **XInput** for the **Official Switch N64 controller** to be used with:
+Edited for the specific use of the **Official Switch N64 controller** to be used with:
 * [Ship of Harkinian](https://www.shipofharkinian.com/)
 * [Project 64](https://www.pj64-emu.com/)
 * [Cemu](http://cemu.info/)
 * [Citra](https://citra-emu.org/)
 * [Dolphin](https://dolphin-emu.org/)
 * [Yuzu](https://yuzu-emu.org/)
-* Plus system-wide with generic support using [Cemuhook](https://sshnuke.net/cemuhook/)
+* Plus system-wide **XInput** support with generic support using [Cemuhook](https://sshnuke.net/cemuhook/)
+
 It also allows using the gyro to control your mouse and remap the special buttons (SL, SR, Capture) to key bindings of your choice.
 
-# If anyone would like to donate to David, [you can do so here](https://www.paypal.me/DavidKhachaturov/5)
+### If anyone would like to donate to David, [you can do so here](https://www.paypal.me/DavidKhachaturov/5)
 
 ### Screenshot
 ![Example](https://user-images.githubusercontent.com/16619943/67919451-bf8e5680-fb76-11e9-995e-7193b87548e1.png)
 
 # Downloads
-Download this specific version [N64 No Triggers](https://github.com/mattdog1000000/BetterJoy/releases/download/n64_no_triggers/BetterJoy_v7.1.n64.zip) by mattdog1000000
+Download and extract this specific version [N64 No Triggers](https://github.com/mattdog1000000/BetterJoy/releases/download/n64_no_triggers/BetterJoy_v7.1.n64.zip) by mattdog1000000
 
-Edit these  keys/lines in "BetterJoyForCemu.exe" (xml file) to these values:
+# How to use
+
+Edit these  keys/lines in "BetterJoyForCemu.exe" (xml file) to these values, then proceed below.
 
 ``
 <add key="ShowAsDS4" value="false" />``
@@ -32,7 +35,6 @@ Edit these  keys/lines in "BetterJoyForCemu.exe" (xml file) to these values:
 ``
 <add key="UseHIDG" value="true" />``
 
-# How to use
 1. Install drivers
     1. Read the READMEs (they're there for a reason!)
     1. Run *Drivers/ViGEmBus_Setup_1.16.116.exe*
