@@ -3,11 +3,17 @@
 </p>
 
 # BetterJoy v7.1.n64
-Edited for the specific use of **XInput** for the **Official Switch N64 controller** to be used with [Ship of Harkinian](https://www.shipofharkinian.com/) - [Project 64](https://www.pj64-emu.com/) - [Cemu](http://cemu.info/) - [Citra](https://citra-emu.org/) - [Dolphin](https://dolphin-emu.org/) - [Yuzu](https://yuzu-emu.org/), and system-wide with generic support using [Cemuhook](https://sshnuke.net/cemuhook/)
-
+Edited for the specific use of **XInput** for the **Official Switch N64 controller** to be used with:
+* [Ship of Harkinian](https://www.shipofharkinian.com/)
+* [Project 64](https://www.pj64-emu.com/)
+* [Cemu](http://cemu.info/)
+* [Citra](https://citra-emu.org/)
+* [Dolphin](https://dolphin-emu.org/)
+* [Yuzu](https://yuzu-emu.org/)
+* Plus system-wide with generic support using [Cemuhook](https://sshnuke.net/cemuhook/)
 It also allows using the gyro to control your mouse and remap the special buttons (SL, SR, Capture) to key bindings of your choice.
 
-**If anyone would like to donate (for whatever reason) to David, [you can do so here](https://www.paypal.me/DavidKhachaturov/5). **
+# If anyone would like to donate to David, [you can do so here](https://www.paypal.me/DavidKhachaturov/5)
 
 ### Screenshot
 ![Example](https://user-images.githubusercontent.com/16619943/67919451-bf8e5680-fb76-11e9-995e-7193b87548e1.png)
