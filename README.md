@@ -3,7 +3,7 @@
 </p>
 
 # BetterJoy v7.1.n64
-Allows the Nintendo Switch Pro Controller, Joycons, Switch SNES controller, and Switch N64 controller to be used with [Cemu](http://cemu.info/) using [Cemuhook](https://sshnuke.net/cemuhook/), [Citra](https://citra-emu.org/), [Dolphin](https://dolphin-emu.org/), [Yuzu](https://yuzu-emu.org/), and system-wide with generic XInput support.
+Edited for the specific use of XInput for the Official Switch N64 controller to be used with [Ship of Harkinian](https://www.shipofharkinian.com/) [Project 64](https://www.pj64-emu.com/) [Cemu](http://cemu.info/) [Citra](https://citra-emu.org/), [Dolphin](https://dolphin-emu.org/) [Yuzu](https://yuzu-emu.org/), and system-wide with generic XInput support using [Cemuhook](https://sshnuke.net/cemuhook/)
 
 It also allows using the gyro to control your mouse and remap the special buttons (SL, SR, Capture) to key bindings of your choice.
 
@@ -18,7 +18,7 @@ It's been quite a wild ride, with nearly **590k** (!!) official download on GitH
 ![Example](https://user-images.githubusercontent.com/16619943/67919451-bf8e5680-fb76-11e9-995e-7193b87548e1.png)
 
 # Downloads
-Go to the [Releases tab](https://github.com/Davidobot/BetterJoy/releases/)!
+Download this specific version [N64 No Triggers]([https://github.com/Davidobot/BetterJoy/releases/](https://github.com/mattdog1000000/BetterJoy/releases/tag/n64_no_triggers))!
 
 # How to use
 1. Install drivers
