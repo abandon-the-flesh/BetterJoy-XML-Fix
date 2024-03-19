@@ -13,14 +13,16 @@ It also allows using the gyro to control your mouse and remap the special button
 ![Example](https://user-images.githubusercontent.com/16619943/67919451-bf8e5680-fb76-11e9-995e-7193b87548e1.png)
 
 # Downloads
-Download this specific version [N64 No Triggers](https://github.com/mattdog1000000/BetterJoy/releases/download/n64_no_triggers/BetterJoy_v7.1.n64.zip)
+Download this specific version [N64 No Triggers](https://github.com/mattdog1000000/BetterJoy/releases/download/n64_no_triggers/BetterJoy_v7.1.n64.zip) by mattdog1000000
 
-Edit these specific keys/lines in "BetterJoyForCemu.exe" (xml file) to these values:
+Edit these  keys/lines in "BetterJoyForCemu.exe" (xml file) to these values:
 
 ``
 <add key="ShowAsDS4" value="false" />``
-`` 
+
+``
 <add key="ShowAsXInput" value="true" />``
+
 ``
 <add key="UseHIDG" value="true" />``
 
